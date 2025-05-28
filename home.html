@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pensar Rápido, Pensar Despacio - Resumen Interactivo con IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Slab:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --amber-500: #f59e0b;
+            --amber-600: #d97706;
+            --teal-500: #14b8a6;
+            --teal-600: #0d9488;
+            --stone-100: #f5f5f4;
+            --stone-200: #e7e5e4;
+            --stone-700: #44403c;
+            --stone-800: #292524;
+            --stone-900: #1c1917;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--stone-100);
+            color: var(--stone-800);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+
+        .nav-link {
+            /* Converted from @apply px-5 py-2 rounded-lg text-sm font-medium text-stone-600 ... mx-2 */
+            padding: 8px 20px; /* py-2 px-5 (8px is 0.5rem, 20px is 1.25rem) */
+            border-radius: 8px; /* rounded-lg */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            color: var(--stone-600); /* text-stone-600 */
+            transition: all 300ms ease-in-out; /* transition-all duration-300 ease-in-out */
+            position: relative;
+            margin-left: 15px; /* Added explicit margin for spacing */
+            margin-right: 15px; /* Added explicit margin for spacing */
+            text-align: center;
+        }
+        .nav-link:hover {
+            background-color: var(--amber-100); /* hover:bg-amber-100 */
+            color: var(--amber-700); /* hover:text-amber-700 */
+        }
+        .nav-link.active {
+            /* Converted from @apply bg-amber-600 text-white hover:bg-amber-700 shadow-lg font-bold */
+            background-color: var(--amber-600); /* bg-amber-600 */
+            color: white; /* text-white */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+            font-weight: 700; /* font-bold */
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px; 
+            bottom: -4px; 
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--amber-500);
+            border-radius: 2px;
+            transition: width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 70%;
+        }
+        .nav-link.active::after {
+             background-color: white;
+        }
+
+        .card {
+            /* Converted from @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-350 ease-out border border-stone-200 flex flex-col */
+            background-color: white; /* bg-white */
+            padding: 24px; /* p-6 */
+            border-radius: 12px; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            transition: all 350ms ease-out; /* transition-all duration-350 ease-out */
+            border: 1px solid var(--stone-200); /* border border-stone-200 */
+            display: flex; /* flex */
+            flex-direction: column; /* flex-col */
+        }
+        .card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* hover:shadow-2xl */
+            transform: scale(1.02); /* hover:scale-102 (added to the group class in HTML for effect) */
+        }
+        .card-title {
+            /* Converted from @apply text-xl font-semibold text-teal-600 mb-3 flex items-center */
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            color: var(--teal-600); /* text-teal-600 */
+            margin-bottom: 12px; /* mb-3 */
+            display: flex; /* flex */
+            align-items: center; /* items-center */
+        }
+        .card-title svg { 
+            /* Converted from @apply mr-2 h-5 w-5 text-teal-500 transition-transform duration-300 ease-in-out */
+            margin-right: 8px; /* mr-2 */
+            height: 20px; /* h-5 */
+            width: 20px; /* w-5 */
+            color: var(--teal-500); /* text-teal-500 */
+            transition: transform 300ms ease-in-out; /* transition-transform duration-300 ease-in-out */
+        }
+        .card-content {
+            /* Converted from @apply text-stone-700 text-sm flex-grow */
+            color: var(--stone-700); /* text-stone-700 */
+            font-size: 0.875rem; /* text-sm */
+            flex-grow: 1; /* flex-grow */
+        }
+        .expandable-content p { 
+            /* Converted from @apply text-sm leading-relaxed */
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.625; /* leading-relaxed */
+        } 
+        
+        .gemini-explanation-area {
+            /* Converted from @apply mt-5 p-5 bg-gradient-to-br from-amber-50 to-orange-100 border border-amber-300 rounded-lg text-sm text-stone-700 shadow-inner */
+            margin-top: 20px; /* mt-5 */
+            padding: 20px; /* p-5 */
+            background: linear-gradient(to bottom right, var(--amber-50), var(--orange-100)); /* bg-gradient-to-br from-amber-50 to-orange-100 */
+            border: 1px solid var(--amber-300); /* border border-amber-300 */
+            border-radius: 8px; /* rounded-lg */
+            font-size: 0.875rem; /* text-sm */
+            color: var(--stone-700); /* text-stone-700 */
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); /* shadow-inner */
+            min-height: 80px; 
+        }
+        .gemini-explanation-area p { 
+            /* Converted from @apply leading-relaxed */
+            line-height: 1.625; /* leading-relaxed */
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(245, 158, 11, 0.2); 
+            border-left-color: var(--amber-600); 
+            border-radius: 50%;
+            width: 28px; 
+            height: 28px;
+            animation: spin 0.8s linear infinite; 
+            margin: 20px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .chart-container {
+            /* Converted from @apply relative w-full max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-xl border border-stone-200 */
+            position: relative; /* relative */
+            width: 100%; /* w-full */
+            max-width: 48rem; /* max-w-2xl (768px) */
+            margin-left: auto; /* mx-auto */
+            margin-right: auto; /* mx-auto */
+            padding: 24px; /* p-6 */
+            background-color: white; /* bg-white */
+            border-radius: 12px; /* rounded-xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+            border: 1px solid var(--stone-200); /* border border-stone-200 */
+            height: 320px; 
+            max-height: 450px;
+        }
+        @media (min-width: 768px) { .chart-container { height: 380px; } }
+
+        h1.page-title {
+             font-family: 'Roboto Slab', serif;
+             /* Converted from @apply text-4xl font-black text-amber-700 */
+             font-size: 1.85rem; /* text-4xl (36px) */
+             font-weight: 700; /* font-black */
+             color: var(--amber-700); /* text-amber-700 */
+        }
+        h2 { 
+            font-family: 'Roboto Slab', serif;
+            /* Converted from @apply text-3xl font-bold text-amber-700 mb-10 pb-3 border-b-4 border-amber-300 flex items-center */
+            font-size: 1.875rem; /* text-3xl (30px) */
+            font-weight: 700; /* font-bold */
+            color: var(--amber-700); /* text-amber-700 */
+            margin-bottom: 40px; /* mb-10 */
+            padding-bottom: 12px; /* pb-3 */
+            border-bottom: 4px solid var(--amber-300); /* border-b-4 border-amber-300 */
+            display: flex; /* flex */
+            align-items: center; /* items-center */
+        }
+        h2 svg { 
+            height: 24px; /* Explicit pixel height */
+            width: 24px;  /* Explicit pixel width */
+            margin-right: 12px; /* Explicit margin */
+            color: var(--amber-600);
+        } 
+        h3 { 
+            font-family: 'Roboto Slab', serif;
+            /* Converted from @apply text-2xl font-bold text-teal-700 mb-5 mt-8 */
+            font-size: 1.5rem; /* text-2xl (24px) */
+            font-weight: 700; /* font-bold */
+            color: var(--teal-700); /* text-teal-700 */
+            margin-bottom: 20px; /* mb-5 */
+            margin-top: 32px; /* mt-8 */
+        }
+        p, li { 
+            /* Converted from @apply text-stone-800 leading-relaxed mb-5 text-base */
+            color: var(--stone-800); /* text-stone-800 */
+            line-height: 1.625; /* leading-relaxed */
+            margin-bottom: 20px; /* mb-5 */
+            font-size: 1rem; /* text-base */
+        }
+        strong { 
+            /* Converted from @apply font-bold text-stone-900 */
+            font-weight: 700; /* font-bold */
+            color: var(--stone-900); /* text-stone-900 */
+        } 
+        
+        .intro-paragraph { 
+            /* Converted from @apply text-lg text-stone-700 mb-10 border-l-8 border-amber-500 pl-8 py-4 bg-amber-50 rounded-r-lg shadow-md */
+            font-size: 1.125rem; /* text-lg */
+            color: var(--stone-700); /* text-stone-700 */
+            margin-bottom: 40px; /* mb-10 */
+            border-left: 8px solid var(--amber-500); /* border-l-8 border-amber-500 */
+            padding-left: 32px; /* pl-8 */
+            padding-top: 16px; /* py-4 */
+            padding-bottom: 16px; /* py-4 */
+            background-color: var(--amber-50); /* bg-amber-50 */
+            border-top-right-radius: 8px; /* rounded-r-lg */
+            border-bottom-right-radius: 8px; /* rounded-r-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        
+        .comparison-table th { 
+            /* Converted from @apply bg-gradient-to-r from-teal-600 to-teal-700 text-white p-4 text-left text-sm font-semibold uppercase tracking-wider */
+            background-image: linear-gradient(to right, var(--teal-600), var(--teal-700)); /* bg-gradient-to-r from-teal-600 to-teal-700 */
+            color: rgb(100, 11, 11); /* text-white */
+            padding: 16px; /* p-4 */
+            text-align: left; /* text-left */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            text-transform: uppercase; /* uppercase */
+            letter-spacing: 0.05em; /* tracking-wider */
+        }
+        .comparison-table td { 
+            /* Converted from @apply border border-stone-200 p-4 text-sm */
+            border: 1px solid var(--stone-200); /* border border-stone-200 */
+            padding: 16px; /* p-4 */
+            font-size: 0.875rem; /* text-sm */
+        }
+        .comparison-table tr:nth-child(even) { 
+            background-color: var(--stone-50); /* bg-stone-50 */
+        }
+        .comparison-table tr:hover { 
+            background-color: var(--amber-100); /* bg-amber-100 */
+            transition: background-color 200ms; /* transition-colors duration-200 */
+        }
+        .comparison-table { 
+            /* Converted from @apply rounded-xl overflow-hidden shadow-xl my-10 */
+            border-radius: 12px; /* rounded-xl */
+            overflow: hidden; /* overflow-hidden */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+            margin-top: 40px; /* my-10 */
+            margin-bottom: 40px; /* my-10 */
+        } 
+
+        .interactive-choice button, .gemini-button { 
+            /* Converted from @apply font-semibold py-2.5 px-5 rounded-lg mr-2 mb-2 transition-all duration-300 ease-out shadow-md hover:shadow-lg transform hover:-translate-y-1 text-sm focus:outline-none focus:ring-4 */
+            font-weight: 600; /* font-semibold */
+            padding: 10px 20px; /* py-2.5 px-5 */
+            border-radius: 8px; /* rounded-lg */
+            margin-right: 8px; /* mr-2 */
+            margin-bottom: 8px; /* mb-2 */
+            transition: all 300ms ease-out; /* transition-all duration-300 ease-out */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            font-size: 0.875rem; /* text-sm */
+            outline: none; /* focus:outline-none */
+        }
+        .interactive-choice button:hover, .gemini-button:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* hover:shadow-lg */
+            transform: translateY(-4px); /* transform hover:-translate-y-1 */
+        }
+        .interactive-choice button:focus {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5); /* focus:ring-4 (adjust color to match specific Tailwind ring color) */
+        }
+        .interactive-choice button {
+            /* Converted from @apply bg-teal-500 hover:bg-teal-600 text-white focus:ring-teal-300 */
+            background-color: var(--teal-500); /* bg-teal-500 */
+            color: white; /* text-white */
+        }
+        .interactive-choice button:hover {
+            background-color: var(--teal-600); /* hover:bg-teal-600 */
+        }
+        .interactive-choice button:focus {
+            box-shadow: 0 0 0 4px var(--teal-300); /* focus:ring-teal-300 */
+        }
+
+        footer {
+            /* Converted from @apply bg-gradient-to-br from-stone-800 via-stone-900 to-black text-stone-300 text-center p-10 mt-20 rounded-t-xl shadow-2xl */
+            background-image: linear-gradient(to bottom right, var(--stone-800), var(--stone-900), var(--amber-600)); /* bg-gradient-to-br from-stone-800 via-stone-900 to-black */
+            color: var(--stone-300); /* text-stone-300 */
+            text-align: center; /* text-center */
+            padding: 40px; /* p-10 */
+            margin-top: 80px; /* mt-20 */
+            border-top-left-radius: 12px; /* rounded-t-xl */
+            border-top-right-radius: 12px; /* rounded-t-xl */
+            box-shadow: 0 25px 50px -12px var(--amber-500); /* shadow-2xl */
+        }
+        footer p { 
+            /* Converted from @apply text-sm text-stone-300 */
+            font-size: 0.875rem; /* text-sm */
+            color: var(--stone-200); /* text-stone-300 */
+        
+        }
+        footer p.mt-3 {
+            margin-top: 12px; /* mt-3 */
+        }
+        footer p.text-xs {
+            font-size: 0.75rem; /* text-xs */
+        }
+        
+        #mobile-menu-button svg { transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        #mobile-menu-button.open svg { transform: rotate(180deg); } 
+        
+        .card.expanded .card-title svg { transform: rotate(90deg); }
+        .card .ver-mas-text {
+            /* Converted from @apply text-xs text-amber-600 font-semibold group-hover:text-amber-700 transition-colors duration-200 */
+            font-size: 0.75rem; /* text-xs */
+            color: var(--amber-600); /* text-amber-600 */
+            font-weight: 600; /* font-semibold */
+            transition: color 200ms; /* transition-colors duration-200 */
+        }
+        .card:hover .ver-mas-text { /* This relies on the 'group' class on .card */
+            color: var(--amber-700); /* group-hover:text-amber-700 */
+        }
+
+
+        #value-function-visual .line-loss {
+            background-color: #ef4444; 
+            box-shadow: 0 0 8px #ef4444;
+        }
+        #value-function-visual .line-gain {
+            background-color: #22c55e; 
+            box-shadow: 0 0 8px #22c55e;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased">
+
+    <header class="bg-white shadow-xl sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <h1 class="page-title">Pensar Rápido, Pensar Despacio</h1>
+                </div>
+                <nav class="hidden md:block">
+                    <div class="ml-10 flex items-baseline">
+                        <a href="#introduccion" class="nav-link active">Introducción</a>
+                        <a href="#heuristicas" class="nav-link">Heurísticas y Sesgos</a>
+                        <a href="#exceso-confianza" class="nav-link">Exceso de Confianza</a>
+                        <a href="#elecciones" class="nav-link">Elecciones</a>
+                        <a href="#dos-yo" class="nav-link">Los Dos Yo</a>
+                        <a href="#conclusion" class="nav-link">Conclusión</a>
+                    </div>
+                </nav>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="p-2 rounded-md text-stone-500 hover:text-amber-600 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-amber-500 transition-all">
+                        <span class="sr-only">Abrir menú principal</span>
+                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg border-t border-stone-200">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#introduccion" class="block nav-link active text-base">Introducción</a>
+                <a href="#heuristicas" class="block nav-link text-base">Heurísticas y Sesgos</a>
+                <a href="#exceso-confianza" class="block nav-link text-base">Exceso de Confianza</a>
+                <a href="#elecciones" class="block nav-link text-base">Elecciones</a>
+                <a href="#dos-yo" class="block nav-link text-base">Los Dos Yo</a>
+                <a href="#conclusion" class="block nav-link text-base">Conclusión</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <section id="introduccion" class="content-section active">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3" /></svg>
+                Introducción: Los Dos Sistemas del Pensamiento
+            </h2>
+            <p class="intro-paragraph">Esta sección introduce el concepto central del libro de Kahneman: la mente humana opera a través de dos sistemas distintos. Comprender estos sistemas es fundamental para entender cómo tomamos decisiones y por qué a menudo cometemos errores de juicio. Exploraremos las características de cada sistema y cómo interactúan.</p>
+            <p>La obra seminal de Daniel Kahneman, "Pensar Rápido, Pensar Despacio", ha transformado radicalmente la comprensión del juicio y la toma de decisiones humanas. Este libro introduce un modelo fundamental en la economía conductual, dilucidando cómo nuestra mente opera a través de dos sistemas distintos: el <strong>Sistema 1 (pensamiento rápido)</strong> y el <strong>Sistema 2 (pensamiento lento)</strong>.</p>
+
+            <h3>Sistema 1: El Procesador Rápido, Intuitivo y Automático</h3>
+            <p>El Sistema 1 se caracteriza por ser automático, rápido, inconsciente, sin esfuerzo, intuitivo y emocional. Opera con poca o ninguna sensación de control voluntario. Ejemplos de su funcionamiento incluyen detectar que un objeto está más distante que otro, hacer una "cara de asco", o leer vallas publicitarias. Su función principal es generar impresiones, intuiciones, intenciones y sentimientos.</p>
+
+            <h3>Sistema 2: El Controlador Lento, Deliberado y Esforzado</h3>
+            <p>En contraste, el Sistema 2 es deliberado, lento, consciente y requiere esfuerzo. Sus operaciones exigen atención y energía. Ejemplos de actividades que involucran al Sistema 2 incluyen cálculos complejos, estacionar un coche en un espacio estrecho, o concentrarse en habitaciones ruidosas. Su papel es asignar atención a las actividades mentales que requieren esfuerzo y monitorear y controlar los pensamientos y acciones sugeridos por el Sistema 1.</p>
+            
+            <h3>Comparación de los Sistemas</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Característica</th>
+                            <th>Sistema 1 (Pensamiento Rápido)</th>
+                            <th>Sistema 2 (Pensamiento Lento)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Velocidad</td><td>Rápido</td><td>Lento</td></tr>
+                        <tr><td>Esfuerzo</td><td>Sin esfuerzo</td><td>Esforzado</td></tr>
+                        <tr><td>Control</td><td>Automático/Inconsciente</td><td>Deliberado/Consciente</td></tr>
+                        <tr><td>Naturaleza</td><td>Intuitivo/Emocional</td><td>Lógico/Deliberativo</td></tr>
+                        <tr><td>Capacidad</td><td>Alta (95% del procesamiento)</td><td>Limitada (requiere atención)</td></tr>
+                        <tr><td>Función Principal</td><td>Genera impresiones/sentimientos</td><td>Monitorea/Controla el Sistema 1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>La Interacción Dinámica y el "Controlador Perezoso"</h3>
+            <p>La mayor parte del tiempo, el Sistema 1 opera de forma automática, con el Sistema 2 en un cómodo modo de bajo esfuerzo. Cuando el Sistema 1 encuentra dificultades, solicita la ayuda del Sistema 2. Sin embargo, el Sistema 2 a menudo funciona como un "controlador perezoso", prefiriendo conservar energía. Esto puede llevar a errores, ya que el Sistema 2 no siempre verifica los atajos del Sistema 1.</p>
+            <p>La <strong>"Ley del Mínimo Esfuerzo"</strong> dicta que la mente se inclinará por la vía que requiera el menor esfuerzo cognitivo. El Sistema 1 también actúa como un motor de "construcción de sentido", buscando coherencia incluso a expensas de la precisión, lo que es una fuente principal de muchos sesgos cognitivos.</p>
+        </section>
+
+        <section id="heuristicas" class="content-section">
+             <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" /></svg>
+                Heurísticas y Sesgos: Atajos y Errores Sistemáticos
+            </h2>
+            <p class="intro-paragraph">Las heurísticas son atajos mentales que el Sistema 1 utiliza para tomar decisiones rápidas. Aunque útiles, pueden llevar a errores sistemáticos llamados sesgos cognitivos. Esta sección explora algunas de las heurísticas y sesgos más importantes identificados por Kahneman, mostrando cómo afectan nuestro juicio y percepción de la realidad.</p>
+            
+            <div id="biases-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-10 my-10">
+                
+            </div>
+
+            <h3>El Problema de Linda y la Falacia de la Conjunción</h3>
+            <p>Uno de los ejemplos más famosos de Kahneman para ilustrar cómo las personas violan las reglas básicas de la probabilidad es el "Problema de Linda". Se les da a los participantes una descripción de Linda (31 años, soltera, extrovertida, licenciada en filosofía, preocupada por la justicia social) y se les pregunta si es más probable que Linda sea "cajera de banco" o "cajera de banco y activista del movimiento feminista".</p>
+            <p>La mayoría de las personas elige la segunda opción, aunque es lógicamente menos probable (la probabilidad de que dos eventos ocurran juntos es siempre menor o igual que la probabilidad de que ocurra cualquiera de ellos por separado). Esto demuestra la <strong>falacia de la conjunción</strong>, donde el Sistema 1 favorece una narrativa más detallada y "representativa" sobre una lógicamente más probable.</p>
+            <div class="chart-container mt-8 mb-6">
+                <canvas id="lindaProblemChart"></canvas>
+            </div>
+            <p class="text-sm text-center mt-3 text-stone-600">Ilustración de la respuesta típica al Problema de Linda.</p>
+
+        </section>
+
+        <section id="exceso-confianza" class="content-section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.75A.75.75 0 012.25 4.5M3 6h12M3 6h2.25M3 6v12m12-12h.75a.75.75 0 01.75.75v.75m0 0h-.75a.75.75 0 01-.75-.75M15 6h2.25m15-1.5l-3.75 3.75M15 12h-4.5M15 12a9 9 0 10-18 0 9 9 0 0018 0z" /></svg>
+                Exceso de Confianza y Errores en la Previsión
+            </h2>
+            <p class="intro-paragraph">El exceso de confianza es una característica humana común que puede llevar a errores significativos en la planificación y la predicción. En esta sección, examinaremos fenómenos como la Falacia de la Planificación y la Ilusión Retrospectiva, y cómo el optimismo, aunque impulsor, puede cegarnos a los riesgos reales.</p>
+
+            <h3>La Falacia de la Planificación</h3>
+            <p>La falacia de la planificación es un sesgo cognitivo que lleva a las personas a subestimar el tiempo, el dinero y los recursos necesarios para completar tareas y proyectos. Esto resulta en predicciones excesivamente optimistas. Se deriva de un sesgo hacia el optimismo y la sobreconfianza en el propio conocimiento y habilidades.</p>
+            <p><strong>Ejemplo:</strong> La construcción de la Ópera de Sídney, planeada para 1963 pero completada en 1973, con costos que superaron con creces el presupuesto original.</p>
+            <p>Para mitigarla, se recomienda ser realista, utilizar datos de experiencias pasadas (la "vista externa"), dividir las tareas y realizar un seguimiento regular.</p>
+
+            <h3>La Ilusión Retrospectiva ("Ya lo Sabía")</h3>
+            <p>La ilusión retrospectiva es la convicción errónea de que se podría haber predicho un evento después de que este ha ocurrido. Este sesgo resulta de la incapacidad para reconstruir con precisión las creencias previas a un evento, lo que lleva a la creencia de que "se sabía" que sucedería.</p>
+            <p><strong>Ejemplo:</strong> Personas que afirman que "sabían" que la crisis financiera de 2008 era inevitable, después de que ocurrió.</p>
+            <p>Esta ilusión fomenta el exceso de confianza en la capacidad de predecir el futuro y dificulta el aprendizaje de las sorpresas.</p>
+
+            <h3>El Motor del Capitalismo: Optimismo y Exceso de Confianza</h3>
+            <p>El optimismo y el exceso de confianza son fuerzas impulsoras detrás de las iniciativas empresariales, fomentando la innovación. Sin embargo, también aumentan la probabilidad de fracaso. Un optimismo excesivo puede conducir a planes de negocio poco realistas y subestimación de riesgos. Es crucial equilibrar el entusiasmo con una evaluación realista.</p>
+            <p>Kahneman destaca la paradoja: nuestros sistemas cognitivos están programados para la certeza y la predicción, pero la realidad a menudo es incierta. Esta disonancia nos lleva a sesgos sistemáticos.</p>
+        </section>
+
+        <section id="elecciones" class="content-section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12A2.25 2.25 0 0020.25 14.25V3M3.75 21h16.5M3.75 3h16.5M3.75 3A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21m16.5 0a2.25 2.25 0 002.25-2.25V5.25A2.25 2.25 0 0020.25 3m-16.5 0h16.5m-1.873 4.5l-1.423 8.536M16.873 7.5l-1.423 8.536M12 7.5l-1.423 8.536" /></svg>
+                Elecciones, Valores y la Teoría de las Perspectivas
+            </h2>
+            <p class="intro-paragraph">¿Cómo tomamos decisiones, especialmente bajo riesgo e incertidumbre? Esta sección explora la Teoría de las Perspectivas de Kahneman y Tversky, que revolucionó la comprensión de la toma de decisiones al mostrar que no somos tan racionales como la economía clásica suponía. Conceptos como la aversión a la pérdida y el efecto de marco son cruciales aquí.</p>
+
+            <h3>Teoría de las Perspectivas (Prospect Theory)</h3>
+            <p>Desarrollada por Kahneman y Tversky, la Teoría de las Perspectivas explica cómo las personas toman decisiones basándose en las <strong>ganancias y pérdidas percibidas relativas a un punto de referencia</strong>, en lugar de únicamente en los resultados finales. Un hallazgo clave es la <strong>aversión a la pérdida</strong>: las personas tienden a temer más las pérdidas de lo que valoran las ganancias equivalentes.</p>
+            <div class="my-10 p-8 bg-white rounded-xl shadow-xl border border-stone-200"> 
+                <h4 class="text-xl font-bold text-teal-700 mb-6">Visualización Simplificada de la Función de Valor:</h4> 
+                <div class="flex justify-around items-end h-60 border-l-2 border-b-2 border-stone-400 relative"> 
+                    <div class="absolute top-1/2 left-0 w-full border-t-2 border-dashed border-stone-300"></div> 
+                    <div class="absolute top-0 left-1/2 h-full border-r-2 border-dashed border-stone-300"></div> 
+                    <span class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-base text-stone-600 font-semibold">Punto de Referencia</span> 
+                    <span class="absolute top-1/2 -left-12 transform -translate-y-1/2 rotate-[-90deg] text-base text-stone-600 font-semibold">Valor Percibido</span> 
+                    
+                    <div id="value-function-visual" class="w-full h-full relative">
+                        <div class="absolute line-loss" style="width: 4px; height: 68%; bottom: 0; left: calc(50% - 2px); transform-origin: top left; transform: rotate(-38deg) translateX(-50%) translateY(13%); border-radius: 4px;"></div> 
+                        <div class="absolute line-gain" style="width: 4px; height: 48%; top: 0; left: calc(50% - 2px); transform-origin: bottom right; transform: rotate(-68deg) translateX(50%) translateY(-16%); border-radius: 4px;"></div> 
+                    </div>
+                </div>
+                 <p class="text-base text-center mt-12 text-stone-700">La curva ilustra que el impacto psicológico de una pérdida (rojo) es mayor que el de una ganancia equivalente (verde), evidenciado por una pendiente más pronunciada para las pérdidas.</p>
+            </div>
+            <p><strong>Implicación:</strong> El miedo a perder a menudo supera la esperanza de ganar, lo que lleva a comportamientos reacios al riesgo incluso cuando podrían ser beneficiosos.</p>
+
+            <h3>El Efecto Dotación</h3>
+            <p>El efecto dotación es la tendencia a sobrevalorar los ítems que ya poseemos. La propiedad aumenta el valor percibido de un artículo, haciéndonos reacios a intercambiar o vender.</p>
+            <p><strong>Ejemplo:</strong> Alguien que no está dispuesto a vender una taza que posee por $5, pero tampoco estaría dispuesto a comprar la misma taza por más de $2 si no la tuviera.</p>
+
+            <h3>El Efecto de Marco (Framing Effect)</h3>
+            <p>La forma en que se presenta o "enmarca" un problema o una elección puede alterar significativamente las decisiones, incluso si la información lógica subyacente es la misma. El Sistema 1 es muy sensible a la descripción.</p>
+            <div class="interactive-choice bg-amber-50 p-8 rounded-xl shadow-lg my-10 border-2 border-amber-300"> 
+                <p class="font-semibold text-xl text-amber-800 mb-4">Escenario Médico: Un nuevo tratamiento para una enfermedad grave.</p> 
+                <p id="framing-question" class="text-stone-700 mb-5 text-lg">¿Qué opción prefieres?</p> 
+                <button id="frame-optionA">Opción A: "Este tratamiento tiene una tasa de supervivencia del 90% después de un año."</button>
+                <button id="frame-optionB">Opción B: "Este tratamiento tiene una tasa de mortalidad del 10% después de un año."</button>
+                <p id="framing-result" class="mt-8 text-teal-700 font-semibold hidden bg-teal-50 p-5 rounded-lg border-2 border-teal-200 shadow-sm"></p> 
+            </div>
+            <p>Nuestras preferencias a menudo se refieren a problemas enmarcados, no a la realidad objetiva.</p>
+             <h3>Otros Conceptos Clave:</h3>
+            <ul class="list-disc list-inside space-y-3 pl-5"> 
+                <li><strong>Impacto de los Eventos Negativos:</strong> Somos más sensibles a pérdidas potenciales que a ganancias.</li>
+                <li><strong>Patrón Cuádruple:</strong> Las actitudes hacia el riesgo varían con ganancias/pérdidas y probabilidades altas/bajas.</li>
+                <li><strong>Sobreponderación de Eventos Raros:</strong> Tendencia a sobreestimar la probabilidad de eventos raros y dramáticos.</li>
+            </ul>
+        </section>
+
+        <section id="dos-yo" class="content-section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                Los Dos Yo y el Bienestar
+            </h2>
+            <p class="intro-paragraph">Kahneman introduce una distinción crucial entre el "yo experimentador" (que vive el momento) y el "yo recordador" (que evalúa las experiencias pasadas y toma decisiones futuras). Esta dualidad tiene profundas implicaciones para nuestra comprensión de la felicidad y el bienestar.</p>
+
+            <h3>El Yo Experimentador frente al Yo Recordador</h3>
+            <p>El <strong>yo experimentador</strong> vive en el presente. Se pregunta: "¿Duele ahora?". El <strong>yo recordador</strong> es el que mira hacia atrás, evalúa las experiencias pasadas y toma decisiones sobre el futuro. Se pregunta: "¿Cómo fue, en general?".</p>
+            <p>A menudo, el yo recordador es el que "lleva la cuenta" y domina nuestras decisiones. No siempre recordamos las experiencias con precisión. El yo recordador tiende a dar más peso a los momentos más intensos (el "pico") y al final de una experiencia (la "regla del pico-final"), mientras que ignora en gran medida la duración.</p>
+            <p><strong>Ejemplo:</strong> Una colonoscopia dolorosa puede ser recordada como menos negativa si los últimos minutos son menos incómodos, aunque la duración total del dolor haya sido mayor que en otro procedimiento que terminó abruptamente en un momento de dolor.</p>
+
+            <h3>La Vida como una Historia</h3>
+            <p>El yo recordador moldea nuestras decisiones centrándose en cómo se espera que los eventos sean recordados, como si estuviéramos construyendo una "historia" de nuestra vida. El Sistema 1 es impulsado por estas narrativas.</p>
+            <p>Esto significa que podríamos priorizar la creación de una buena "historia" (por ejemplo, unas vacaciones con un final espectacular, aunque el resto haya sido mediocre) sobre el disfrute genuino y constante de la vida tal como sucede. La coherencia narrativa y los finales significativos son importantes para el yo recordador.</p>
+
+            <h3>Bienestar Experimentado y Reflexión sobre la Vida</h3>
+            <p>Existe a menudo una discrepancia entre cómo nos sentimos en el momento (bienestar experimentado) y cómo evaluamos nuestra vida en general (satisfacción vital, que es dominio del yo recordador). Nuestra satisfacción con la vida está influenciada tanto por juicios rápidos del Sistema 1 como por el pensamiento reflexivo del Sistema 2.</p>
+            <p>Comprender esta brecha es crucial para tomar decisiones que conduzcan a un mayor bienestar y felicidad a largo plazo. Sugiere que el verdadero bienestar requiere un esfuerzo consciente para integrar y valorar tanto las experiencias del yo experimentador como las narrativas del yo recordador. Kahneman sugiere que podríamos estar descuidando la felicidad del yo experimentador al centrarnos demasiado en construir recuerdos para el yo recordador.</p>
+        </section>
+
+        <section id="conclusion" class="content-section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068M15.75 21H8.25A2.25 2.25 0 016 18.75V16.5M15 5.25v3m0 0V11.25m0-3a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                Conclusión: El Impacto Duradero de "Pensar Rápido, Pensar Despacio"
+            </h2>
+            <p class="intro-paragraph">La obra de Kahneman no solo nos ayuda a entendernos mejor a nosotros mismos, sino que también ofrece herramientas prácticas para mejorar nuestra toma de decisiones en la vida personal y profesional. Ser conscientes de nuestros sesgos es el primer paso hacia un pensamiento más claro y racional.</p>
+            <p>La obra de Daniel Kahneman ofrece conocimientos fundamentales para mejorar la toma de decisiones. La conciencia de la existencia y la influencia de los atajos y sesgos del Sistema 1 es el primer paso crucial.</p>
+            <h3>Principales Enseñanzas:</h3>
+            <ul class="list-disc list-inside space-y-3 pl-5 bg-white p-8 rounded-xl shadow-lg border border-stone-200"> 
+                <li><strong>Reconocer los Sistemas:</strong> Entender la interacción entre el Sistema 1 (rápido, intuitivo) y el Sistema 2 (lento, deliberativo) es clave.</li>
+                <li><strong>Estar Alerta a los Sesgos:</strong> La heurística de la disponibilidad, el anclaje, el sesgo de confirmación, entre otros, afectan constantemente nuestro juicio.</li>
+                <li><strong>Cuestionar la Intuición:</strong> Las intuiciones no siempre son fiables, especialmente en entornos impredecibles. La intuición experta solo es válida bajo condiciones específicas (práctica extensa, entorno regular, retroalimentación rápida).</li>
+                <li><strong>Considerar la "Vista Externa":</strong> Para evitar la falacia de la planificación y el optimismo excesivo, es útil observar datos de casos similares en lugar de centrarse solo en el propio.</li>
+                <li><strong>Entender el Efecto de Marco:</strong> La forma en que se presenta la información impacta significativamente las decisiones.</li>
+                <li><strong>Aversión a la Pérdida:</strong> El miedo a perder es un motivador más fuerte que la perspectiva de ganar.</li>
+                <li><strong>Los Dos Yo:</strong> Nuestras decisiones están influenciadas por el yo que experimenta y el yo que recuerda, y este último suele tener más peso.</li>
+            </ul>
+            <p>El trabajo de Kahneman redefine la comprensión de la toma de decisiones humanas, mostrando que somos menos "Econs" racionales y más "Humanos" influenciados por la intuición y la emoción. Estas ideas son la base de la economía conductual y tienen aplicaciones en psicología, marketing, políticas públicas y más.</p>
+            <p>En un mundo acelerado que fomenta respuestas rápidas, el esfuerzo deliberado para activar el Sistema 2 y ser conscientes de nuestros procesos mentales se vuelve una habilidad cada vez más vital para tomar decisiones razonadas.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Resumen Interactivo de "Pensar Rápido, Pensar Despacio". Extraido de la obra de Daniel Kahneman.</p>
+        <p class="mt-3 text-xs">Inspirada por la importancia del conocimiento entregado por este autor y su investigación.</p>
+    </footer>
+
+<script>
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.content-section');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    function updateActiveNav(targetId) {
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${targetId}` || (link.hash && link.hash === `#${targetId}`)) {
+                link.classList.add('active');
+            }
+        });
+    }
+    
+    function showSection(targetId) {
+        sections.forEach(section => {
+            if (section.id === targetId) {
+                section.classList.add('active');
+            } else {
+                section.classList.remove('active');
+            }
+        });
+        updateActiveNav(targetId);
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = e.target.closest('a').getAttribute('href').substring(1);
+            showSection(targetId);
+            if (mobileMenu.classList.contains('block')) {
+                mobileMenu.classList.remove('block');
+                mobileMenu.classList.add('hidden');
+                mobileMenuButton.classList.remove('open');
+                mobileMenuButton.querySelector('svg path').setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+            }
+        });
+    });
+    
+    mobileMenuButton.addEventListener('click', () => {
+        const isOpen = mobileMenu.classList.toggle('hidden');
+        mobileMenu.classList.toggle('block', !isOpen);
+        mobileMenuButton.classList.toggle('open');
+        if (mobileMenuButton.classList.contains('open')) {
+            mobileMenuButton.querySelector('svg path').setAttribute('d', 'M6 18L18 6M6 6l12 12');
+        } else {
+            mobileMenuButton.querySelector('svg path').setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+        }
+    });
+
+    const biasesData = [
+        { 
+            id: "disponibilidad",
+            title: "Heurística de la Disponibilidad", 
+            short: "Juzgar la frecuencia por la facilidad con que los ejemplos vienen a la mente.",
+            full: "Se estima la frecuencia o probabilidad de un evento basándose en la facilidad con la que vienen a la mente ejemplos. El Sistema 1 sustituye '¿con qué frecuencia ocurre esto?' por '¿con qué facilidad puedo recordar ejemplos?'. La información reciente, vívida o impactante recibe más peso.",
+            example: "Sobreestimar el riesgo de volar tras un accidente aéreo muy publicitado, aunque estadísticamente volar sea muy seguro."
+        },
+        { 
+            id: "anclaje",
+            title: "Efecto Anclaje", 
+            short: "Una pieza inicial de información influye desproporcionadamente en juicios posteriores.",
+            full: "Una pieza inicial de información, incluso si es irrelevante, influye significativamente en juicios posteriores. Este 'ancla' establece un punto de referencia que sesga las estimaciones, y el ajuste posterior suele ser insuficiente.",
+            example: "Si el primer precio que ves para un producto es alto, otros precios más bajos pueden parecer una ganga, incluso si siguen siendo caros."
+        },
+        { 
+            id: "sustitucion",
+            title: "Sustitución", 
+            short: "Reemplazar una pregunta difícil o compleja con una más fácil de responder.",
+            full: "Al enfrentarse a una pregunta compleja, el Sistema 1 a menudo la reemplaza por una pregunta más sencilla y fácil de responder, sin que la persona se dé cuenta. La heurística del estado de ánimo es un tipo: '¿Qué pienso al respecto?' se convierte en '¿Cómo me siento al respecto?'.",
+            example: "Al evaluar la felicidad general en la vida (difícil), se puede sustituir por '¿Cómo me siento ahora mismo?' (fácil)."
+        },
+        { 
+            id: "confirmacion",
+            title: "Sesgo de Confirmación", 
+            short: "Buscar, interpretar y recordar información que confirma las creencias existentes.",
+            full: "Es la tendencia a buscar, interpretar, favorecer y recordar información de una manera que confirma o apoya las creencias o hipótesis preexistentes, mientras se da menos consideración a alternativas.",
+            example: "Una persona que cree que los zurdos son más creativos prestará más atención a los artistas zurdos exitosos e ignorará a los diestros."
+        },
+        { 
+            id: "halo",
+            title: "Efecto Halo", 
+            short: "Generalizar el agrado o desagrado por un solo rasgo a todos los demás rasgos.",
+            full: "Tendencia a gustar (o disgustar) todo de una persona o cosa basándose en un solo rasgo o una experiencia inicial, incluso aspectos no observados. El Sistema 1 genera una visión del mundo más simple y coherente.",
+            example: "Si un orador es atractivo y carismático, la audiencia puede asumir que su mensaje también es inteligente y veraz."
+        },
+        {
+            id: "numeros_pequenos",
+            title: "Ley de los Números Pequeños",
+            short: "Sacar conclusiones firmes a partir de muestras de datos insuficientes o pequeñas.",
+            full: "Es la tendencia del Sistema 1 a tomar decisiones y sacar conclusiones basándose en pequeñas cantidades de información, asumiendo erróneamente que son representativas de una población más grande. Las muestras pequeñas son más propensas a resultados extremos y menos fiables.",
+            example: "Concluir que una moneda está trucada porque ha salido cara tres veces seguidas, ignorando la probabilidad a largo plazo."
+        },
+        {
+            id: "representatividad",
+            title: "Heurística de la Representatividad",
+            short: "Juzgar la probabilidad por la semejanza con un estereotipo, ignorando tasas base.",
+            full: "Juzgar la probabilidad de que algo pertenezca a una categoría basándose en cuánto se asemeja a un estereotipo o prototipo de esa categoría, a menudo descuidando las tasas base (probabilidades previas o estadísticas generales).",
+            example: "El 'Problema de Tom W.': si Tom es descrito como tímido y organizado, la gente podría pensar que es más probable que sea bibliotecario que agricultor, ignorando que hay muchos más agricultores que bibliotecarios."
+        }
+    ];
+
+    const biasesGrid = document.getElementById('biases-grid');
+    if (biasesGrid) {
+        biasesData.forEach(bias => {
+            const card = document.createElement('div');
+            card.className = 'card group transform hover:scale-102'; 
+            card.innerHTML = `
+                <div class="flex-grow"> 
+                    <h3 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                        ${bias.title}
+                    </h3>
+                    <p class="card-content">${bias.short}</p>
+                    <div class="expandable-content mt-4 pt-4 border-t-2 border-dashed border-stone-200">
+                        <p class="text-sm text-stone-600"><strong>Definición Completa:</strong> ${bias.full}</p>
+                        <p class="text-sm text-stone-600 mt-3"><strong>Ejemplo Original:</strong> ${bias.example}</p>
+                        
+                        
+                    </div>
+                </div>
+                <div class="mt-auto pt-4"> 
+                    
+                    <button class="w-full text-center mt-3 ver-mas-text">
+                        Ver Más Detalles...
+                    </button>
+                </div>
+            `;
+            
+            const expandableContent = card.querySelector('.expandable-content');
+            const titleIcon = card.querySelector('.card-title svg');
+            const verMasButton = card.querySelector('.ver-mas-text');
+
+            verMasButton.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                const isExpanded = expandableContent.style.display === 'block';
+                expandableContent.style.display = isExpanded ? 'none' : 'block';
+                card.classList.toggle('expanded', !isExpanded);
+                titleIcon.style.transform = isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'; 
+                verMasButton.textContent = !isExpanded ? 'Ocultar Detalles' : 'Ver Más Detalles...';
+            });
+            
+            card.addEventListener('click', (e) => {
+                if (e.target.classList.contains('gemini-button') || e.target.closest('.gemini-button')) {
+                    return; 
+                }
+                 if (e.target.classList.contains('ver-mas-text')) {
+                    return; 
+                }
+                const isExpanded = expandableContent.style.display === 'block';
+                expandableContent.style.display = isExpanded ? 'none' : 'block';
+                card.classList.toggle('expanded', !isExpanded);
+                titleIcon.style.transform = isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'; 
+                verMasButton.textContent = !isExpanded ? 'Ocultar Detalles' : 'Ver Más Detalles...';
+            });
+
+            biasesGrid.appendChild(card);
+        });
+    }
+
+    if (document.getElementById('lindaProblemChart')) {
+        const ctxLinda = document.getElementById('lindaProblemChart').getContext('2d');
+        new Chart(ctxLinda, {
+            type: 'bar',
+            data: {
+                labels: ['Cajera de banco Y feminista', 'Cajera de banco (solo)'],
+                datasets: [{
+                    label: '% de personas que eligen (ilustrativo)',
+                    data: [85, 15], 
+                    backgroundColor: [ 'rgba(217, 119, 6, 0.8)', 'rgba(13, 148, 136, 0.8)' ],
+                    borderColor: [ 'rgb(217, 119, 6)', 'rgb(13, 148, 136)' ],
+                    borderWidth: 2, borderRadius: 8, barThickness: 60
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 100, title: { display: true, text: 'Porcentaje Estimado (%)', font: {size: 14, family: 'Inter', weight: '600'} }, grid: { color: 'rgba(200,200,200,0.3)'}, ticks: {font: {family: 'Inter'}}},
+                    x: { grid: { display: false }, ticks: {font: {family: 'Inter', size: 12}}}
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true, backgroundColor: 'rgba(0,0,0,0.85)', titleFont: { size: 14, family: 'Inter', weight: 'bold' }, bodyFont: { size: 12, family: 'Inter' }, padding: 12, cornerRadius: 4,
+                        callbacks: { label: (c) => `${c.dataset.label || ''}: ${c.parsed.y}%` }
+                    }
+                },
+                animation: { duration: 1200, easing: 'easeOutCubic' }
+            }
+        });
+    }
+    
+    const frameOptionA = document.getElementById('frame-optionA');
+    const frameOptionB = document.getElementById('frame-optionB');
+    const framingResult = document.getElementById('framing-result');
+
+    function handleFrameChoice(event) {
+        frameOptionA.classList.remove('ring-4', 'ring-offset-2', 'ring-teal-400', 'bg-teal-600');
+        frameOptionB.classList.remove('ring-4', 'ring-offset-2', 'ring-teal-400', 'bg-teal-600');
+        frameOptionA.classList.add('bg-teal-500');
+        frameOptionB.classList.add('bg-teal-500');
+        
+        event.target.classList.remove('bg-teal-500');
+        event.target.classList.add('bg-teal-600', 'ring-4', 'ring-offset-2', 'ring-teal-400');
+
+
+        framingResult.innerHTML = `💡 <strong>Explicación Detallada:</strong> Ambas opciones describen exactamente la misma situación objetiva (90% supervivencia equivale a 10% mortalidad). Sin embargo, la forma en que se "enmarca" la información influye drásticamente en la percepción y preferencia. La gente tiende a encontrar más atractiva la opción enmarcada positivamente (supervivencia) que la enmarcada negativamente (mortalidad), aunque lógicamente sean idénticas. Este es un claro ejemplo del poderoso <strong>efecto de marco</strong> en la toma de decisiones.`;
+        framingResult.classList.remove('hidden');
+    }
+
+    if (frameOptionA) frameOptionA.addEventListener('click', handleFrameChoice);
+    if (frameOptionB) frameOptionB.addEventListener('click', handleFrameChoice);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const initialHash = window.location.hash.substring(1);
+        if (initialHash && document.getElementById(initialHash)) {
+            showSection(initialHash);
+        } else {
+            showSection('introduccion');
+        }
+    });
+
+</script>
+</body>
+</html>
