@@ -1,2 +1,2 @@
-# DanielKahneman_Resumen
-Resumen del Libro Pensar Lento Pensar Despacio de Daniel Kahneman
+# DanielKahneman Resumen
+Resumen del Libro Pensar Rápido Pensar Despacio de Daniel Kahneman
